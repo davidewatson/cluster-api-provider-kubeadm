@@ -18,7 +18,6 @@ package machine
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	clusterv1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
@@ -49,25 +48,31 @@ func NewActuator(params ActuatorParams) (*Actuator, error) {
 // Create creates a machine and is invoked by the Machine Controller
 func (a *Actuator) Create(ctx context.Context, cluster *clusterv1.Cluster, machine *clusterv1.Machine) error {
 	log.Printf("Creating machine %v for cluster %v.", machine.Name, cluster.Name)
-	return fmt.Errorf("TODO: Not yet implemented")
+	return nil
 }
 
 // Delete deletes a machine and is invoked by the Machine Controller
 func (a *Actuator) Delete(ctx context.Context, cluster *clusterv1.Cluster, machine *clusterv1.Machine) error {
 	log.Printf("Deleting machine %v for cluster %v.", machine.Name, cluster.Name)
-	return fmt.Errorf("TODO: Not yet implemented")
+	return nil
 }
 
 // Update updates a machine and is invoked by the Machine Controller
 func (a *Actuator) Update(ctx context.Context, cluster *clusterv1.Cluster, machine *clusterv1.Machine) error {
 	log.Printf("Updating machine %v for cluster %v.", machine.Name, cluster.Name)
-	return fmt.Errorf("TODO: Not yet implemented")
+	return nil
 }
 
 // Exists test for the existance of a machine and is invoked by the Machine Controller
 func (a *Actuator) Exists(ctx context.Context, cluster *clusterv1.Cluster, machine *clusterv1.Machine) (bool, error) {
 	log.Printf("Checking if machine %v for cluster %v exists.", machine.Name, cluster.Name)
-	return false, fmt.Errorf("TODO: Not yet implemented")
+
+	// !? Propose we standardize on looking for an annotation on the Machine to
+	// determine when the Machine exists. NodeRefs will not work in the Manager
+	// cluster case and we need to provide stronger guidance for higher level
+	// tooling.
+
+	return false, nil
 }
 
 // The Machine Actuator interface must implement GetIP and GetKubeConfig functions as a workaround for issues
@@ -77,11 +82,11 @@ func (a *Actuator) Exists(ctx context.Context, cluster *clusterv1.Cluster, machi
 // GetIP returns IP address of the machine in the cluster.
 func (a *Actuator) GetIP(cluster *clusterv1.Cluster, machine *clusterv1.Machine) (string, error) {
 	log.Printf("Getting IP of machine %v for cluster %v.", machine.Name, cluster.Name)
-	return "", fmt.Errorf("TODO: Not yet implemented")
+	return "", nil
 }
 
 // GetKubeConfig gets a kubeconfig from the master.
 func (a *Actuator) GetKubeConfig(cluster *clusterv1.Cluster, master *clusterv1.Machine) (string, error) {
 	log.Printf("Getting IP of machine %v for cluster %v.", master.Name, cluster.Name)
-	return "", fmt.Errorf("TODO: Not yet implemented")
+	return "", nil
 }
