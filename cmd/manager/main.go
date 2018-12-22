@@ -21,9 +21,14 @@ import (
 	"os"
 
 	"github.com/davidewatson/cluster-api-provider-kubeadm/pkg/apis"
+	"github.com/davidewatson/cluster-api-provider-kubeadm/pkg/cloud/kubeadm/actuators/cluster"
+	"github.com/davidewatson/cluster-api-provider-kubeadm/pkg/cloud/kubeadm/actuators/machine"
 	"github.com/davidewatson/cluster-api-provider-kubeadm/pkg/controller"
 	"github.com/davidewatson/cluster-api-provider-kubeadm/pkg/webhook"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	clusterapis "sigs.k8s.io/cluster-api/pkg/apis"
+	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	capicluster "sigs.k8s.io/cluster-api/pkg/controller/cluster"
+	capimachine "sigs.k8s.io/cluster-api/pkg/controller/machine"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
@@ -45,6 +50,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Create actuators
+	cs, err := clientset.NewForConfig(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	clusterActuator, err := cluster.NewActuator(cluster.ActuatorParams{
+		ClustersGetter: cs.ClusterV1alpha1(),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	machineActuator, err := machine.NewActuator(machine.ActuatorParams{
+		MachinesGetter: cs.ClusterV1alpha1(),
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	// Create a new Cmd to provide shared dependencies and start components
 	log.Info("setting up manager")
 	mgr, err := manager.New(cfg, manager.Options{MetricsBindAddress: metricsAddr})
@@ -62,12 +87,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := clusterapis.AddToScheme(mgr.GetScheme()); err != nil {
+		panic(err)
+	}
+
 	// Setup all Controllers
 	log.Info("Setting up controller")
 	if err := controller.AddToManager(mgr); err != nil {
 		log.Error(err, "unable to register controllers to the manager")
 		os.Exit(1)
 	}
+
+	capimachine.AddWithActuator(mgr, machineActuator)
+	capicluster.AddWithActuator(mgr, clusterActuator)
 
 	log.Info("setting up webhooks")
 	if err := webhook.AddToManager(mgr); err != nil {

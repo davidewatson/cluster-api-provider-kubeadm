@@ -5,6 +5,32 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - kubeadm.k8s.io
+  resources:
+  - kubeadmclusterproviderspecs
+  - kubeadmclusterproviderstatuses
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - kubeadm.k8s.io
+  resources:
+  - kubeadmmachineproviderspecs
+  - kubeadmmachineproviderstatuses
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
